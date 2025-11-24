@@ -12,25 +12,21 @@ begin
   today = Date.today
   month = options[:month] || today.month
   year = options[:year] || today.year
-  day_first = Date.new(year, month, 1)
-  day_last = Date.new(year, month, -1)
+  first_date = Date.new(year, month, 1)
+  last_date = Date.new(year, month, -1)
 rescue StandardError
-  p "入力されたオプションの値は適切ではありません"
+  puts "入力されたオプションの値は適切ではありません"
   exit
 end
 
-space = '   ' * day_first.wday
+space = '   ' * first_date.wday
 
 puts "#{month}月 #{year}".rjust(13)
 puts '日 月 火 水 木 金 土'
 print space
 
-(1..day_last.day).each do |date|
-  print date
-
-  print ' ' if date < 10
-
+(1..last_date.day).each do |date|
+  print date.to_s.rjust(2)
   print ' '
-
-  puts "\n" if (day_first.wday + date) % 7 == 0
+  puts "\n" if Date.new(year, month, date).saturday?
 end
