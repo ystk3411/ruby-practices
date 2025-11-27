@@ -25,8 +25,8 @@ puts "#{month}月 #{year}".rjust(13)
 puts '日 月 火 水 木 金 土'
 print space
 
-(1..last_date.day).each do |date|
-  print date.to_s.rjust(2)
+(first_date..last_date).each do |date|
+  print date.day.to_s.rjust(2)
   print ' '
-  puts "\n" if Date.new(year, month, date).saturday?
+  puts "\n" if date.saturday?
 end
