@@ -1,20 +1,23 @@
 # frozen_string_literal: true
 
+FRAMES_COUNT = [3, 9, 10, 11]
+
 scores = gets.chomp.split(',')
 shots = scores.flat_map do |score|
   score == 'X' ? [10, 0] : score.to_i
 end
 
 frames = shots.each_slice(2).to_a
-if frames.count >= 11
-  frames[9].push(frames.values_at(10,11)).flatten!
+if frames.count >= FRAMES_COUNT[3]
+  frames[9].push(frames.values_at(FRAMES_COUNT[2],FRAMES_COUNT[3])).flatten!
   frames[9].compact!
-  
+
   if frames[9][0] == 10
-    frames[9].delete(0) if frames[9].count > 3
-    frames[9] << 0 until frames[9].count == 3
+
+    frames[9].delete(0) if frames[9].count > FRAMES_COUNT[0]
+    frames[9] << 0 until frames[9].count == [0]
   end
-  frames.slice!(10, 11)
+  frames.slice!(FRAMES_COUNT[2],FRAMES_COUNT[3])
 end
 
 point = 0
