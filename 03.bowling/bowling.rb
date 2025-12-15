@@ -15,7 +15,7 @@ if frames.count >= FRAMES_COUNT[3]
   if frames[9][0] == 10
 
     frames[9].delete(0) if frames[9].count > FRAMES_COUNT[0]
-    frames[9] << 0 until frames[9].count == [0]
+    frames[9] << 0 until frames[9].count == FRAMES_COUNT[0]
   end
   frames.slice!(FRAMES_COUNT[2],FRAMES_COUNT[3])
 end
@@ -29,17 +29,17 @@ frames.each_with_index do |frame, index|
         point += (10 + frames[index + 1][1])
         next
       end
-      point += (frames[index + 1][0] + frames[index + 1][1])
+      point += frames[index + 1][0..1].sum
       next
     end
     if index == 9
-      point += (frame[1] + frame[2])
+      point += frame[1..2].sum
       next
     end
     if frames[index + 1][0] == 10
       point += 10
       if frames[index + 1] == 9
-        point += (frames[index + 1][1] + frames[index + 1][2])
+        point += frames[index + 1][1..2].sum
         next
       end
       point += if frames[index + 2][0] == 10
@@ -48,7 +48,7 @@ frames.each_with_index do |frame, index|
                  frames[index + 2][0]
                end
     else
-      point += (frames[index + 1][0] + frames[index + 1][1])
+      point += frames[index + 1][0..1].sum
     end
   elsif frame.sum == 10 # spare
     point += 10
