@@ -7,10 +7,10 @@ end
 
 frames = shots.each_slice(2).to_a
 if frames.count >= 11
-  frames[9].push(frames[10]).flatten! unless frames[10].nil?
-  frames[9].push(frames[11]).flatten! unless frames[11].nil?
+  frames[9].push(frames.values_at(10,11)).flatten!
+  frames[9].compact!
+  
   if frames[9][0] == 10
-    frames[9].delete(nil)
     frames[9].delete(0) if frames[9].count > 3
     frames[9] << 0 until frames[9].count == 3
   end
