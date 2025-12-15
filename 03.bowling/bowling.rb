@@ -1,14 +1,8 @@
 # frozen_string_literal: true
 
 scores = gets.chomp.split(',')
-shots = []
-scores.each do |s|
-  if s == 'X'
-    shots << 10
-    shots << 0
-  else
-    shots << s.to_i
-  end
+shots = scores.flat_map do |score|
+  score == 'X' ? [10, 0] : score.to_i
 end
 
 frames = shots.each_slice(2).to_a
