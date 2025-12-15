@@ -9,7 +9,7 @@ end
 
 frames = shots.each_slice(2).to_a
 if frames.count >= FRAMES_COUNT[3]
-  frames[9].push(frames.values_at(FRAMES_COUNT[2],FRAMES_COUNT[3])).flatten!
+  frames[9].push(frames.values_at(FRAMES_COUNT[2], FRAMES_COUNT[3])).flatten!
   frames[9].compact!
 
   if frames[9][0] == 10
@@ -17,7 +17,7 @@ if frames.count >= FRAMES_COUNT[3]
     frames[9].delete(0) if frames[9].count > FRAMES_COUNT[0]
     frames[9] << 0 until frames[9].count == FRAMES_COUNT[0]
   end
-  frames.slice!(FRAMES_COUNT[2],FRAMES_COUNT[3])
+  frames.slice!(FRAMES_COUNT[2], FRAMES_COUNT[3])
 end
 
 point = 0
