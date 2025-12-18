@@ -42,14 +42,7 @@ frames.each_with_index do |frame, index|
       point += frames[index + 1][0..1].sum
     end
   elsif frame.sum == 10 # spare
-    point += 10
-    if !frames[index + 1].nil?
-      point += if frames[index + 1][0] == 10
-                 10
-               else
-                 frames[index + 1][0]
-               end
-    end
+    point += (10 + frames[index + 1][0])
   else
     point += frame.sum
   end
