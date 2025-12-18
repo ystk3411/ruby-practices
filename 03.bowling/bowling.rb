@@ -37,10 +37,6 @@ frames.each_with_index do |frame, index|
     end
     if frames[index + 1][0] == 10
       point += 10
-      if frames[index + 1] == 9
-        point += frames[index + 1][1..2].sum
-        next
-      end
       point += frames[index + 2][0]
     else
       point += frames[index + 1][0..1].sum
