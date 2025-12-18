@@ -31,13 +31,13 @@ frames.each_with_index do |frame, index|
   end
   if frame[0] == 10 # strike
     point += 10
-    if index == 8 && frames[index + 1][0] == 10
-      point += (10 + frames[index + 1][1])
-      next
-    end
     if frames[index + 1][0] == 10
       point += 10
-      point += frames[index + 2][0]
+      if index == 8
+        point += frames[index + 1][1]
+      else
+        point += frames[index + 2][0]
+      end
     else
       point += frames[index + 1][0..1].sum
     end
