@@ -25,11 +25,10 @@ end
 
 point = 0
 frames.each_with_index do |frame, index|
+  point += frame.sum
   if index == 9
-    point += frame.sum
     next
   end
-  point += frame.sum
   if frame[0] == 10 # strike
     if frames[index + 1][0] == 10
       point += 10
