@@ -22,26 +22,19 @@ if frames.count >= FRAME_TWELFTH
   end
   frames.slice!(FRAME_ELEVENTH, FRAME_TWELFTH)
 end
+point = frames.each_with_index.sum do |frame, index|
+  next frame.sum if index == 9
 
-point = 0
-frames.each_with_index do |frame, index|
-  point += frame.sum
-  if index == 9
-    next
-  end
   if frame[0] == 10 # strike
-    if frames[index + 1][0] == 10
-      point += 10
-      if index == 8
-        point += frames[index + 1][1]
-      else
-        point += frames[index + 2][0]
-      end
-    else
-      point += frames[index + 1][0..1].sum
-    end
+    next frames[index + 1][0..1].sum + frame.sum unless frames[index + 1][0] == 10
+
+    result = (10 + frame.sum)
+    result += index == 8 ? frames[index + 1][1] : frames[index + 2][0]
+    next result
+
   elsif frame.sum == 10 # spare
-    point += frames[index + 1][0]
+    next frames[index + 1][0] + frame.sum
   end
+  frame.sum
 end
 puts point
