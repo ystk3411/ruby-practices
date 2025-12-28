@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-FRAME_THIRD = 3
+FRAME_LAST_THROW = 3
 FRAME_TENTH = 9
 FRAME_ELEVENTH = 10
 FRAME_TWELFTH = 11
