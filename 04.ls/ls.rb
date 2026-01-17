@@ -16,7 +16,7 @@ def sort_files(files)
 end
 
 def output
-  arrange_files.each_with_index do |file, _index|
+  transpose_files.each_with_index do |file, _index|
     file.each do |f|
       if !f.nil?
         multiplier = 0
