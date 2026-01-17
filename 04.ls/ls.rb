@@ -3,24 +3,32 @@
 
 COL_NUM = 3
 
-def files_arrange
+def transpose_files
   files = Dir.glob('*')
-  m = Rational(files.size, COL_NUM).ceil
   max_size = files.map(&:size).max
-  files_slice = files.each_slice(m).to_a
-  files_sort = files_slice.map { |file| file.values_at(0...max_size) }
+  files_sort = sort_files(files).map { |file| file.values_at(0...max_size) }
   files_sort.transpose
 end
 
+def sort_files(files)
+  m = files.size.ceildiv(COL_NUM)
+  files_slice = files.each_slice(m).to_a
+end
+
 def output
-  files_arrange.each_with_index do |file, _index|
+  arrange_files.each_with_index do |file, _index|
     file.each do |f|
-      print f.ljust(20)
+      if !f.nil?
+        multiplier = 0
+        if f.length > 20
+          multiplier = f.length.ceildiv(20)
+          print f.ljust(20 * multiplier)
+        else
+          print f.ljust(20)
+        end
+      end
     end
-    print "\n"
-  rescue StandardError
-    print "\n"
-    next
+    puts
   end
 end
 
