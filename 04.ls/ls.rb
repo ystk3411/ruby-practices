@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 COL_NUM = 3
+SPACE_LENGTH = 20
 
 def main
   files = fetch_files
@@ -29,11 +30,11 @@ def output
     file.each do |f|
       if !f.nil?
         multiplier = 0
-        if f.length > 20
-          multiplier = f.length.ceildiv(20)
-          print f.ljust(20 * multiplier)
+        if f.length > SPACE_LENGTH
+          multiplier = f.length.ceildiv(SPACE_LENGTH)
+          print f.ljust(SPACE_LENGTH * multiplier)
         else
-          print f.ljust(20)
+          print f.ljust(SPACE_LENGTH)
         end
       end
     end
