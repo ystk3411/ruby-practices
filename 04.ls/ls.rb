@@ -15,14 +15,15 @@ def fetch_files
 end
 
 def sort_files(files)
-  max_size = files.map(&:size).max
   m = files.size.ceildiv(COL_NUM)
   files_slice = files.each_slice(m).to_a
+  max_size = files_slice.map(&:size).max
   files_slice.map { |file| file.values_at(0...max_size) }
 end
 
 def transpose_files(files)
-  files.transpose
+  files_transpose = files.transpose
+  files_transpose.map { |files| files.compact }
 end
 
 def output
