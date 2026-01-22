@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 COL_NUM = 3
-SPACE_LENGTH = 20
+SPACE_LENGTH = 5
 
 def main
   files = fetch_files
@@ -26,18 +26,14 @@ def transpose_files(files)
   files_transpose.map { |files| files.compact }
 end
 
+def spaces_num(files)
+  files.map(&:size).max + SPACE_LENGTH
+end
+
 def output
   main.each_with_index do |file, _index|
     file.each do |f|
-      if !f.nil?
-        multiplier = 0
-        if f.length > SPACE_LENGTH
-          multiplier = f.length.ceildiv(SPACE_LENGTH)
-          print f.ljust(SPACE_LENGTH * multiplier)
-        else
-          print f.ljust(SPACE_LENGTH)
-        end
-      end
+      print f.ljust(spaces_num(fetch_files))
     end
     puts
   end
