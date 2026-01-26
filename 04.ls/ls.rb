@@ -28,9 +28,10 @@ def spaces_num(files)
 end
 
 def output(files)
+  files_fetch = fetch_files
   files.each_with_index do |file, _index|
     file.each do |f|
-      print f.ljust(spaces_num(fetch_files))
+      print f.ljust(spaces_num(files_fetch))
     end
     puts
   end
