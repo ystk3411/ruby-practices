@@ -15,16 +15,14 @@ def fetch_files
 end
 
 def format_files(files)
-  if !files.empty?
-    m = files.size.ceildiv(COL_NUM)
-    files_slice = files.each_slice(m).to_a
-    max_size = files_slice.map(&:size).max
-    files_sort = files_slice.map { |file| file.values_at(0...max_size) }
-    files_transpose = files_sort.transpose
-    files_transpose.map { |files| files.compact }
-  else
-    []
-  end
+  return [] if files.empty?
+
+  m = files.size.ceildiv(COL_NUM)
+  files_slice = files.each_slice(m).to_a
+  max_size = files_slice.map(&:size).max
+  files_sort = files_slice.map { |file| file.values_at(0...max_size) }
+  files_transpose = files_sort.transpose
+  files_transpose.map { |files| files.compact }
 end
 
 def spaces_num(files)
