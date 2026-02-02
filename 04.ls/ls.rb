@@ -17,11 +17,8 @@ def fetch_files
   opt = OptionParser.new
   opt.on('-a') { |_v| options[:a] = true }
   opt.parse!(ARGV)
-  if options[:a]
-    Dir.glob('*', File::FNM_DOTMATCH)
-  else
-    Dir.glob('*')
-  end
+  flags = options[:a] ? File::FNM_DOTMATCH : 0
+  Dir.glob('*', flags)
 end
 
 def format_files(files)
