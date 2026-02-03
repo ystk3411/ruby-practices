@@ -1,6 +1,8 @@
 #! /usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'optparse'
+
 COL_NUM = 3
 SPACE_LENGTH = 5
 
@@ -11,7 +13,12 @@ def main
 end
 
 def fetch_files
-  Dir.glob('*')
+  options = {}
+  opt = OptionParser.new
+  opt.on('-a') { |_v| options[:a] = true }
+  opt.parse!(ARGV)
+  flags = options[:a] ? File::FNM_DOTMATCH : 0
+  Dir.glob('*', flags)
 end
 
 def format_files(files)
@@ -22,7 +29,7 @@ def format_files(files)
   max_size = files_slice.map(&:size).max
   files_sort = files_slice.map { |file| file.values_at(0...max_size) }
   files_transpose = files_sort.transpose
-  files_transpose.map { |files| files.compact }
+  files_transpose.map(&:compact)
 end
 
 def spaces_num(files)
