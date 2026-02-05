@@ -7,19 +7,21 @@ COL_NUM = 3
 SPACE_LENGTH = 5
 
 def main
-  files = fetch_files
-  files_format = format_files(files)
-  output(files_format)
-end
-
-def fetch_files
   options = {}
   opt = OptionParser.new
   opt.on('-a') { |_v| options[:a] = true }
   opt.on('-r') { |_v| options[:r] = true }
   opt.parse!(ARGV)
+  files = fetch_files(options)
+  files_format = format_files(files)
+  output(files_format, options)
+end
+
+def fetch_files(options)
   flags = options[:a] ? File::FNM_DOTMATCH : 0
-  options[:r] ? Dir.glob('*', flags).reverse : Dir.glob('*', flags)
+  filenames = Dir.glob('*', flags)
+  filenames.reverse! if options[:r]
+  filenames
 end
 
 def format_files(files)
@@ -37,8 +39,8 @@ def spaces_num(files)
   files.map(&:size).max + SPACE_LENGTH
 end
 
-def output(files)
-  files_fetch = fetch_files
+def output(files, options)
+  files_fetch = fetch_files(options)
   files.each_with_index do |file, _index|
     file.each do |f|
       print f.ljust(spaces_num(files_fetch))
