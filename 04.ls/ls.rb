@@ -7,14 +7,19 @@ COL_NUM = 3
 SPACE_LENGTH = 5
 
 def main
+  options = parse_option
+  files = fetch_files(options)
+  files_format = format_files(files)
+  output(files_format, options)
+end
+
+def parse_option
   options = {}
   opt = OptionParser.new
   opt.on('-a') { |_v| options[:a] = true }
   opt.on('-r') { |_v| options[:r] = true }
   opt.parse!(ARGV)
-  files = fetch_files(options)
-  files_format = format_files(files)
-  output(files_format, options)
+  options
 end
 
 def fetch_files(options)
