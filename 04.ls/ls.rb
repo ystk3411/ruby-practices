@@ -10,7 +10,8 @@ def main
   options = parse_option
   files = fetch_files(options)
   files_format = format_files(files)
-  output(files_format)
+  offset_length = spaces_num(files)
+  output(files_format, offset_length)
 end
 
 def parse_option
@@ -44,11 +45,10 @@ def spaces_num(files)
   files.map(&:size).max + SPACE_LENGTH
 end
 
-def output(files)
-  files_flatten = files.flatten
+def output(files, offset_length)
   files.each_with_index do |file, _index|
     file.each do |f|
-      print f.ljust(spaces_num(files_flatten))
+      print f.ljust(offset_length)
     end
     puts
   end
