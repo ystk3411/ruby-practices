@@ -7,18 +7,27 @@ COL_NUM = 3
 SPACE_LENGTH = 5
 
 def main
-  files = fetch_files
+  options = parse_option
+  files = fetch_files(options)
   files_format = format_files(files)
-  output(files_format)
+  offset_length = spaces_num(files)
+  output(files_format, offset_length)
 end
 
-def fetch_files
+def parse_option
   options = {}
   opt = OptionParser.new
   opt.on('-a') { |_v| options[:a] = true }
+  opt.on('-r') { |_v| options[:r] = true }
   opt.parse!(ARGV)
+  options
+end
+
+def fetch_files(options)
   flags = options[:a] ? File::FNM_DOTMATCH : 0
-  Dir.glob('*', flags)
+  filenames = Dir.glob('*', flags)
+  filenames.reverse! if options[:r]
+  filenames
 end
 
 def format_files(files)
@@ -36,11 +45,10 @@ def spaces_num(files)
   files.map(&:size).max + SPACE_LENGTH
 end
 
-def output(files)
-  files_fetch = fetch_files
+def output(files, offset_length)
   files.each_with_index do |file, _index|
     file.each do |f|
-      print f.ljust(spaces_num(files_fetch))
+      print f.ljust(offset_length)
     end
     puts
   end
