@@ -16,7 +16,7 @@ PERMISSION_PATTERN1 = {
   '14' => 's'
 }.freeze
 PERMISSION_PATTERN2 = {
-  '0' => '',
+  '0' => nil,
   '1' => %w[t T],
   '2' => %w[s S],
   '4' => %w[s S]
@@ -99,29 +99,44 @@ end
 
 def spaces_num_user_name(files)
   files.map do |file|
-    fs = File::Stat.new(file)
-    uid = fs.uid
-    user_name = Etc.getpwuid(uid).name
+    user_name = get_file_metadata(file)[:user_name]
     user_name.length
   end.max
 end
 
 def spaces_num_group(files)
   files.map do |file|
-    fs = File::Stat.new(file)
-    gid = fs.gid
-    group_name = Etc.getgrgid(gid).name
+    group_name = get_file_metadata(file)[:group_name]
     group_name.length
   end.max
+end
+
+def get_file_metadata(file)
+  fs = File::Stat.new(file)
+  uid = fs.uid
+  gid = fs.gid
+  {
+    user_name: Etc.getpwuid(uid).name,
+    group_name: Etc.getgrgid(gid).name
+  }
 end
 
 def format_permission(permission_num)
   permission1 = PERMISSION_PATTERN1[permission_num[0..1]]
   permission2 = PERMISSION_PATTERN2[permission_num[2]]
-  permission3 = PERMISSION_PATTERN3[permission_num[3]]
-  permission4 = PERMISSION_PATTERN3[permission_num[4]]
-  permission5 = PERMISSION_PATTERN3[permission_num[5]]
-  "#{permission1}#{permission2}#{permission3}#{permission4}#{permission5} "
+  permission3 = PERMISSION_PATTERN3[permission_num[3]].dup
+  permission4 = PERMISSION_PATTERN3[permission_num[4]].dup
+  permission5 = PERMISSION_PATTERN3[permission_num[5]].dup
+  case permission_num[2]
+  when '1'
+    permission5[2] = permission5[2] == '-' ? permission2[1] : permission2[0]
+  when '2'
+    permission4[2] = permission4[2] == '-' ? permission2[1] : permission2[0]
+  when '4'
+    permission3[2] = permission3[2] == '-' ? permission2[1] : permission2[0]
+  end
+
+  "#{permission1}#{permission3}#{permission4}#{permission5}# "
 end
 
 def output(files, offset_length)
@@ -136,20 +151,18 @@ end
 def output_detail(files, offset_length)
   files.each do |file|
     fs = File::Stat.new(file)
-    uid = fs.uid
-    gid = fs.gid
     permission_num = fs.mode.to_s(8).length == 6 ? fs.mode.to_s(8) : "0#{fs.mode.to_s(8)}"
-    user_name = Etc.getpwuid(uid).name
-    group_name = Etc.getgrgid(gid).name
+    user_name = get_file_metadata(file)[:user_name]
+    group_name = get_file_metadata(file)[:group_name]
     link_num = fs.nlink.to_s
     file_size = fs.size.to_s
     print format_permission(permission_num)
-    print "#{link_num} "
-    print "#{user_name.rjust(offset_length[:user_name])}  "
-    print "#{group_name.rjust(offset_length[:group_name])}  "
+    print "#{link_num.ljust(offset_length[:link])} "
+    print "#{user_name.ljust(offset_length[:user_name])}  "
+    print "#{group_name.ljust(offset_length[:group_name])}  "
     print "#{file_size.rjust(offset_length[:file_size])} "
     print "#{fs.mtime.strftime('%b')} "
-    print fs.mtime.day.to_s.length == 2 ? "#{fs.mtime.day} " : "#{fs.mtime.day.to_s.rjust(2)} "
+    print "#{fs.mtime.day.to_s.rjust(2)} "
     print "#{fs.mtime.strftime('%H:%M')} "
     print file
     puts
