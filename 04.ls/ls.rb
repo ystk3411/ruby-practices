@@ -6,7 +6,7 @@ require 'etc'
 
 COL_NUM = 3
 SPACE_LENGTH = 5
-PERMISSION_PATTERN1 = {
+FILE_TYPE = {
   '01' => 'p',
   '02' => 'c',
   '04' => 'd',
@@ -15,13 +15,16 @@ PERMISSION_PATTERN1 = {
   '12' => 'l',
   '14' => 's'
 }.freeze
-PERMISSION_PATTERN2 = {
-  '0' => nil,
+STICKY_BIT_PATTERN = {
   '1' => %w[t T],
   '2' => %w[s S],
-  '4' => %w[s S]
+  '3' => [%w[t T], %w[s S]],
+  '4' => %w[s S],
+  '5' => [%w[t T], %w[s S]],
+  '6' => %w[s S],
+  '7' => [%w[t T], %w[s S]]
 }.freeze
-PERMISSION_PATTERN3 = {
+PERMISSION_PATTERN = {
   '0' => '---',
   '1' => '--x',
   '2' => '-w-',
@@ -122,21 +125,34 @@ def get_file_metadata(file)
 end
 
 def format_permission(permission_num)
-  permission1 = PERMISSION_PATTERN1[permission_num[0..1]]
-  permission2 = PERMISSION_PATTERN2[permission_num[2]]
-  permission3 = PERMISSION_PATTERN3[permission_num[3]].dup
-  permission4 = PERMISSION_PATTERN3[permission_num[4]].dup
-  permission5 = PERMISSION_PATTERN3[permission_num[5]].dup
+  permission1 = FILE_TYPE[permission_num[0..1]]
+  permission2 = STICKY_BIT_PATTERN[permission_num[2]]
+  permission3 = PERMISSION_PATTERN[permission_num[3]].dup
+  permission4 = PERMISSION_PATTERN[permission_num[4]].dup
+  permission5 = PERMISSION_PATTERN[permission_num[5]].dup
   case permission_num[2]
   when '1'
     permission5[2] = permission5[2] == '-' ? permission2[1] : permission2[0]
   when '2'
     permission4[2] = permission4[2] == '-' ? permission2[1] : permission2[0]
+  when '3'
+    permission4[2] = permission4[2] == '-' ? permission2[1][1] : permission2[1][0]
+    permission5[2] = permission5[2] == '-' ? permission2[0][1] : permission2[0][0]
   when '4'
     permission3[2] = permission3[2] == '-' ? permission2[1] : permission2[0]
+  when '5'
+    permission3[2] = permission3[2] == '-' ? permission2[1][1] : permission2[1][0]
+    permission5[2] = permission5[2] == '-' ? permission2[0][1] : permission2[0][0]
+  when '6'
+    permission3[2] = permission3[2] == '-' ? permission2[1] : permission2[0]
+    permission4[2] = permission4[2] == '-' ? permission2[1] : permission2[0]
+  when '7'
+    permission3[2] = permission3[2] == '-' ? permission2[1][1] : permission2[1][0]
+    permission4[2] = permission4[2] == '-' ? permission2[1][1] : permission2[1][0]
+    permission5[2] = permission5[2] == '-' ? permission2[0][1] : permission2[0][0]
   end
 
-  "#{permission1}#{permission3}#{permission4}#{permission5}# "
+  "#{permission1}#{permission3}#{permission4}#{permission5}"
 end
 
 def output(files, offset_length)
@@ -156,8 +172,8 @@ def output_detail(files, offset_length)
     group_name = get_file_metadata(file)[:group_name]
     link_num = fs.nlink.to_s
     file_size = fs.size.to_s
-    print format_permission(permission_num)
-    print "#{link_num.ljust(offset_length[:link])} "
+    print "#{format_permission(permission_num)} "
+    print "#{link_num.rjust(offset_length[:link])} "
     print "#{user_name.ljust(offset_length[:user_name])}  "
     print "#{group_name.ljust(offset_length[:group_name])}  "
     print "#{file_size.rjust(offset_length[:file_size])} "
