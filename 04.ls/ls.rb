@@ -116,43 +116,42 @@ end
 
 def get_file_metadata(file)
   fs = File::Stat.new(file)
+  permission_num = fs.mode.to_s(8).rjust(6, '0')
   uid = fs.uid
   gid = fs.gid
   {
+    file_name: file,
     user_name: Etc.getpwuid(uid).name,
-    group_name: Etc.getgrgid(gid).name
+    group_name: Etc.getgrgid(gid).name,
+    link_num: fs.nlink.to_s,
+    file_size: fs.size.to_s,
+    permission: format_permission(permission_num),
+    month: fs.mtime.strftime('%b'),
+    day: fs.mtime.day.to_s,
+    time: fs.mtime.strftime('%H:%M')
   }
 end
 
 def format_permission(permission_num)
-  permission1 = FILE_TYPE[permission_num[0..1]]
-  permission2 = STICKY_BIT_PATTERN[permission_num[2]]
-  permission3 = PERMISSION_PATTERN[permission_num[3]].dup
-  permission4 = PERMISSION_PATTERN[permission_num[4]].dup
-  permission5 = PERMISSION_PATTERN[permission_num[5]].dup
-  case permission_num[2]
-  when '1'
-    permission5[2] = permission5[2] == '-' ? permission2[1] : permission2[0]
-  when '2'
-    permission4[2] = permission4[2] == '-' ? permission2[1] : permission2[0]
-  when '3'
-    permission4[2] = permission4[2] == '-' ? permission2[1][1] : permission2[1][0]
-    permission5[2] = permission5[2] == '-' ? permission2[0][1] : permission2[0][0]
-  when '4'
-    permission3[2] = permission3[2] == '-' ? permission2[1] : permission2[0]
-  when '5'
-    permission3[2] = permission3[2] == '-' ? permission2[1][1] : permission2[1][0]
-    permission5[2] = permission5[2] == '-' ? permission2[0][1] : permission2[0][0]
-  when '6'
-    permission3[2] = permission3[2] == '-' ? permission2[1] : permission2[0]
-    permission4[2] = permission4[2] == '-' ? permission2[1] : permission2[0]
-  when '7'
-    permission3[2] = permission3[2] == '-' ? permission2[1][1] : permission2[1][0]
-    permission4[2] = permission4[2] == '-' ? permission2[1][1] : permission2[1][0]
-    permission5[2] = permission5[2] == '-' ? permission2[0][1] : permission2[0][0]
-  end
+  file_type = FILE_TYPE[permission_num[0..1]]
+  sticky_bit = format('%03b', permission_num[2].to_i)
+  permission_pattern1 = PERMISSION_PATTERN[permission_num[3]].dup
+  permission_pattern2 = PERMISSION_PATTERN[permission_num[4]].dup
+  permission_pattern3 = PERMISSION_PATTERN[permission_num[5]].dup
+  permission_num_array = [permission_num[3], permission_num[4], permission_num[5]]
+  permission_pattern_array = [permission_pattern1, permission_pattern2, permission_pattern3]
+  num = 0
 
-  "#{permission1}#{permission3}#{permission4}#{permission5}"
+  sticky_bit.each_char do |n|
+    permission_num_formatted = format('%03b', permission_num_array[num].to_i)
+    if (n.to_i & permission_num_formatted[2].to_i) == 1
+      permission_pattern_array[num][2] = num == 2 ? 't' : 's'
+    elsif (n.to_i == 1) && permission_num_formatted[2].to_i.zero?
+      permission_pattern_array[num][2] = num == 2 ? 'T' : 'S'
+    end
+    num += 1
+  end
+  "#{file_type}#{permission_pattern1}#{permission_pattern2}#{permission_pattern3}"
 end
 
 def output(files, offset_length)
@@ -166,21 +165,16 @@ end
 
 def output_detail(files, offset_length)
   files.each do |file|
-    fs = File::Stat.new(file)
-    permission_num = fs.mode.to_s(8).length == 6 ? fs.mode.to_s(8) : "0#{fs.mode.to_s(8)}"
-    user_name = get_file_metadata(file)[:user_name]
-    group_name = get_file_metadata(file)[:group_name]
-    link_num = fs.nlink.to_s
-    file_size = fs.size.to_s
-    print "#{format_permission(permission_num)} "
-    print "#{link_num.rjust(offset_length[:link])} "
-    print "#{user_name.ljust(offset_length[:user_name])}  "
-    print "#{group_name.ljust(offset_length[:group_name])}  "
-    print "#{file_size.rjust(offset_length[:file_size])} "
-    print "#{fs.mtime.strftime('%b')} "
-    print "#{fs.mtime.day.to_s.rjust(2)} "
-    print "#{fs.mtime.strftime('%H:%M')} "
-    print file
+    meta_data = get_file_metadata(file)
+    print "#{meta_data[:permission]} "
+    print "#{meta_data[:link_num].rjust(offset_length[:link])} "
+    print "#{meta_data[:user_name].ljust(offset_length[:user_name])}  "
+    print "#{meta_data[:group_name].ljust(offset_length[:group_name])}  "
+    print "#{meta_data[:file_size].rjust(offset_length[:file_size])} "
+    print "#{meta_data[:month]} "
+    print "#{meta_data[:day].rjust(2)} "
+    print "#{meta_data[:time]} "
+    print meta_data[:file_name]
     puts
   end
 end
