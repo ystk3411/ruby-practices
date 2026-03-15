@@ -3,6 +3,7 @@
 
 require 'optparse'
 require 'etc'
+require 'pathname'
 
 COL_NUM = 3
 SPACE_LENGTH = 5
@@ -40,15 +41,10 @@ def main
   files = fetch_files(options)
   files_format = format_files(files)
   if options[:l]
-    offset_length = {}
-    offset_length[:file_size] = spaces_num_file_size(files)
-    offset_length[:link] = spaces_num_link(files)
-    offset_length[:user_name] = spaces_num_user_name(files)
-    offset_length[:group_name] = spaces_num_group(files)
-    output_detail(files, offset_length)
+    output_detail(files)
   else
-    offset_length = spaces_num_file_name(files)
-    output(files_format, offset_length)
+    offlset_length = spaces_num_file_name(files)
+    output(files_format, offlset_length)
   end
 end
 
@@ -80,56 +76,39 @@ def format_files(files)
   files_transpose.map(&:compact)
 end
 
-def spaces_num_file_name(files)
-  files.map(&:size).max + SPACE_LENGTH
+def get_spaces_num(datas)
+  spaces_num_file_name = datas.map { |data| data[:file_name].size }.max + SPACE_LENGTH
+  spaces_num_file_size = datas.map { |data| data[:file_size].size }.max
+  spaces_num_link = datas.map { |data| data[:link_num].size }.max
+  spaces_num_user_name = datas.map { |data| data[:user_name].size }.max
+  spaces_num_group = datas.map { |data| data[:group_name].size }.max
+  { file_name: spaces_num_file_name,
+    file_size: spaces_num_file_size,
+    link_num: spaces_num_link,
+    user_name: spaces_num_user_name,
+    group_name: spaces_num_group }
 end
 
-def spaces_num_file_size(files)
-  files.map do |file|
-    fs = File::Stat.new(file)
-    file_size = fs.size
-    file_size.to_s.length
-  end.max
-end
-
-def spaces_num_link(files)
-  files.map do |file|
-    fs = File::Stat.new(file)
-    link_num = fs.nlink
-    link_num.to_s.length
-  end.max
-end
-
-def spaces_num_user_name(files)
-  files.map do |file|
-    user_name = get_file_metadata(file)[:user_name]
-    user_name.length
-  end.max
-end
-
-def spaces_num_group(files)
-  files.map do |file|
-    group_name = get_file_metadata(file)[:group_name]
-    group_name.length
-  end.max
-end
-
-def get_file_metadata(file)
-  fs = File::Stat.new(file)
-  permission_num = fs.mode.to_s(8).rjust(6, '0')
-  uid = fs.uid
-  gid = fs.gid
-  {
-    file_name: file,
-    user_name: Etc.getpwuid(uid).name,
-    group_name: Etc.getgrgid(gid).name,
-    link_num: fs.nlink.to_s,
-    file_size: fs.size.to_s,
-    permission: format_permission(permission_num),
-    month: fs.mtime.strftime('%b'),
-    day: fs.mtime.day.to_s,
-    time: fs.mtime.strftime('%H:%M')
-  }
+def get_file_metadata(files)
+  meta_datas = []
+  files.each do |file|
+    fls = File.lstat(file)
+    permission_num = fls.mode.to_s(8).rjust(6, '0')
+    file_name = FileTest.symlink?(file) ? "#{file} -> #{File.readlink(file)}" : file
+    meta_data = {
+      file_name: file_name,
+      user_name: Etc.getpwuid(fls.uid).name,
+      group_name: Etc.getgrgid(fls.gid).name,
+      link_num: fls.nlink.to_s,
+      file_size: fls.size.to_s,
+      permission: format_permission(permission_num),
+      month: fls.mtime.strftime('%b'),
+      day: fls.mtime.day.to_s,
+      time: fls.mtime.strftime('%H:%M')
+    }
+    meta_datas << meta_data
+  end
+  meta_datas
 end
 
 def format_permission(permission_num)
@@ -154,27 +133,28 @@ def format_permission(permission_num)
   "#{file_type}#{permission_pattern1}#{permission_pattern2}#{permission_pattern3}"
 end
 
-def output(files, offset_length)
+def output(files, offlset_length)
   files.each_with_index do |file, _index|
     file.each do |f|
-      print f.ljust(offset_length)
+      print f.ljust(offlset_length)
     end
     puts
   end
 end
 
-def output_detail(files, offset_length)
-  files.each do |file|
-    meta_data = get_file_metadata(file)
-    print "#{meta_data[:permission]} "
-    print "#{meta_data[:link_num].rjust(offset_length[:link])} "
-    print "#{meta_data[:user_name].ljust(offset_length[:user_name])}  "
-    print "#{meta_data[:group_name].ljust(offset_length[:group_name])}  "
-    print "#{meta_data[:file_size].rjust(offset_length[:file_size])} "
-    print "#{meta_data[:month]} "
-    print "#{meta_data[:day].rjust(2)} "
-    print "#{meta_data[:time]} "
-    print meta_data[:file_name]
+def output_detail(files)
+  meta_datas = get_file_metadata(files)
+  spaces_num = get_spaces_num(meta_datas)
+  meta_datas.each do |data|
+    print "#{data[:permission]} "
+    print "#{data[:link_num].rjust(spaces_num[:link_num])} "
+    print "#{data[:user_name].ljust(spaces_num[:user_name])}  "
+    print "#{data[:group_name].ljust(spaces_num[:group_name])}  "
+    print "#{data[:file_size].rjust(spaces_num[:file_size])} "
+    print "#{data[:month]} "
+    print "#{data[:day].rjust(2)} "
+    print "#{data[:time]} "
+    print data[:file_name]
     puts
   end
 end
