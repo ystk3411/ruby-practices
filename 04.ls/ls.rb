@@ -16,15 +16,6 @@ FILE_TYPE = {
   '12' => 'l',
   '14' => 's'
 }.freeze
-STICKY_BIT_PATTERN = {
-  '1' => %w[t T],
-  '2' => %w[s S],
-  '3' => [%w[t T], %w[s S]],
-  '4' => %w[s S],
-  '5' => [%w[t T], %w[s S]],
-  '6' => %w[s S],
-  '7' => [%w[t T], %w[s S]]
-}.freeze
 PERMISSION_PATTERN = {
   '0' => '---',
   '1' => '--x',
@@ -40,11 +31,12 @@ def main
   options = parse_option
   files = fetch_files(options)
   files_format = format_files(files)
+  meta_datas = get_file_metadata(files)
+  offlset_length = get_offlset_length(meta_datas)
   if options[:l]
-    output_detail(files)
+    output_detail(meta_datas, offlset_length)
   else
-    offlset_length = spaces_num_file_name(files)
-    output(files_format, offlset_length)
+    output(files_format, offlset_length[:file_name])
   end
 end
 
@@ -76,7 +68,7 @@ def format_files(files)
   files_transpose.map(&:compact)
 end
 
-def get_spaces_num(datas)
+def get_offlset_length(datas)
   spaces_num_file_name = datas.map { |data| data[:file_name].size }.max + SPACE_LENGTH
   spaces_num_file_size = datas.map { |data| data[:file_size].size }.max
   spaces_num_link = datas.map { |data| data[:link_num].size }.max
@@ -90,12 +82,11 @@ def get_spaces_num(datas)
 end
 
 def get_file_metadata(files)
-  meta_datas = []
-  files.each do |file|
+  files.map do |file|
     fls = File.lstat(file)
     permission_num = fls.mode.to_s(8).rjust(6, '0')
     file_name = FileTest.symlink?(file) ? "#{file} -> #{File.readlink(file)}" : file
-    meta_data = {
+    {
       file_name: file_name,
       user_name: Etc.getpwuid(fls.uid).name,
       group_name: Etc.getgrgid(fls.gid).name,
@@ -106,9 +97,7 @@ def get_file_metadata(files)
       day: fls.mtime.day.to_s,
       time: fls.mtime.strftime('%H:%M')
     }
-    meta_datas << meta_data
   end
-  meta_datas
 end
 
 def format_permission(permission_num)
@@ -119,16 +108,16 @@ def format_permission(permission_num)
   permission_pattern3 = PERMISSION_PATTERN[permission_num[5]].dup
   permission_num_array = [permission_num[3], permission_num[4], permission_num[5]]
   permission_pattern_array = [permission_pattern1, permission_pattern2, permission_pattern3]
-  num = 0
 
-  sticky_bit.each_char do |n|
-    permission_num_formatted = format('%03b', permission_num_array[num].to_i)
-    if (n.to_i & permission_num_formatted[2].to_i) == 1
-      permission_pattern_array[num][2] = num == 2 ? 't' : 's'
-    elsif (n.to_i == 1) && permission_num_formatted[2].to_i.zero?
-      permission_pattern_array[num][2] = num == 2 ? 'T' : 'S'
+  sticky_bit.each_char.with_index do |bit_num, index|
+    permission_num_formatted = format('%03b', permission_num_array[index].to_i)
+    next if bit_num == '0'
+
+    if bit_num == permission_num_formatted[2]
+      permission_pattern_array[index][2] = index == 2 ? 't' : 's'
+    else
+      permission_pattern_array[index][2] = index == 2 ? 'T' : 'S'
     end
-    num += 1
   end
   "#{file_type}#{permission_pattern1}#{permission_pattern2}#{permission_pattern3}"
 end
@@ -142,15 +131,13 @@ def output(files, offlset_length)
   end
 end
 
-def output_detail(files)
-  meta_datas = get_file_metadata(files)
-  spaces_num = get_spaces_num(meta_datas)
+def output_detail(meta_datas, offlset_length)
   meta_datas.each do |data|
     print "#{data[:permission]} "
-    print "#{data[:link_num].rjust(spaces_num[:link_num])} "
-    print "#{data[:user_name].ljust(spaces_num[:user_name])}  "
-    print "#{data[:group_name].ljust(spaces_num[:group_name])}  "
-    print "#{data[:file_size].rjust(spaces_num[:file_size])} "
+    print "#{data[:link_num].rjust(offlset_length[:link_num])} "
+    print "#{data[:user_name].ljust(offlset_length[:user_name])}  "
+    print "#{data[:group_name].ljust(offlset_length[:group_name])}  "
+    print "#{data[:file_size].rjust(offlset_length[:file_size])} "
     print "#{data[:month]} "
     print "#{data[:day].rjust(2)} "
     print "#{data[:time]} "
