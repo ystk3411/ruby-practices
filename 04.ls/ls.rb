@@ -7,6 +7,7 @@ require 'pathname'
 
 COL_NUM = 3
 SPACE_LENGTH = 5
+STICKY_BIT_INDEX = 2
 FILE_TYPE = {
   '01' => 'p',
   '02' => 'c',
@@ -103,23 +104,23 @@ end
 def format_permission(permission_num)
   file_type = FILE_TYPE[permission_num[0..1]]
   sticky_bit = format('%03b', permission_num[2].to_i)
-  permission_pattern1 = PERMISSION_PATTERN[permission_num[3]].dup
-  permission_pattern2 = PERMISSION_PATTERN[permission_num[4]].dup
-  permission_pattern3 = PERMISSION_PATTERN[permission_num[5]].dup
+  permission_user = PERMISSION_PATTERN[permission_num[3]].dup
+  permission_group = PERMISSION_PATTERN[permission_num[4]].dup
+  permission_other = PERMISSION_PATTERN[permission_num[5]].dup
   permission_num_array = [permission_num[3], permission_num[4], permission_num[5]]
-  permission_pattern_array = [permission_pattern1, permission_pattern2, permission_pattern3]
+  permission_pattern_array = [permission_user, permission_group, permission_other]
 
   sticky_bit.each_char.with_index do |bit_num, index|
     permission_num_formatted = format('%03b', permission_num_array[index].to_i)
     next if bit_num == '0'
 
     if bit_num == permission_num_formatted[2]
-      permission_pattern_array[index][2] = index == 2 ? 't' : 's'
+      permission_pattern_array[index][2] = index == STICKY_BIT_INDEX ? 't' : 's'
     else
-      permission_pattern_array[index][2] = index == 2 ? 'T' : 'S'
+      permission_pattern_array[index][2] = index == STICKY_BIT_INDEX ? 'T' : 'S'
     end
   end
-  "#{file_type}#{permission_pattern1}#{permission_pattern2}#{permission_pattern3}"
+  "#{file_type}#{permission_user}#{permission_group}#{permission_other}"
 end
 
 def output(files, offlset_length)
