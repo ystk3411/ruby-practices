@@ -82,6 +82,10 @@ def get_offlset_length(datas)
     group_name: spaces_num_group }
 end
 
+def get_blocks_total(datas)
+  datas.map { |data| data[:block] }.sum
+end
+
 def get_file_metadata(files)
   files.map do |file|
     fls = File.lstat(file)
@@ -96,7 +100,8 @@ def get_file_metadata(files)
       permission: format_permission(permission_num),
       month: fls.mtime.strftime('%b'),
       day: fls.mtime.day.to_s,
-      time: fls.mtime.strftime('%H:%M')
+      time: fls.mtime.strftime('%H:%M'),
+      block: fls.blocks
     }
   end
 end
@@ -114,11 +119,11 @@ def format_permission(permission_num)
     permission_num_formatted = format('%03b', permission_num_array[index].to_i)
     next if bit_num == '0'
 
-    if bit_num == permission_num_formatted[2]
-      permission_pattern_array[index][2] = index == STICKY_BIT_INDEX ? 't' : 's'
-    else
-      permission_pattern_array[index][2] = index == STICKY_BIT_INDEX ? 'T' : 'S'
-    end
+    permission_pattern_array[index][2] = if bit_num == permission_num_formatted[2]
+                                           index == STICKY_BIT_INDEX ? 't' : 's'
+                                         else
+                                           index == STICKY_BIT_INDEX ? 'T' : 'S'
+                                         end
   end
   "#{file_type}#{permission_user}#{permission_group}#{permission_other}"
 end
@@ -133,6 +138,7 @@ def output(files, offlset_length)
 end
 
 def output_detail(meta_datas, offlset_length)
+  puts "total #{get_blocks_total(meta_datas)}"
   meta_datas.each do |data|
     print "#{data[:permission]} "
     print "#{data[:link_num].rjust(offlset_length[:link_num])} "
