@@ -34,7 +34,7 @@ def output(options)
   print lines_num.rjust(8) if options[:l]
   print words_num.rjust(8) if options[:w]
   print characters_num.rjust(8) if options[:c]
-  print " #{ARGV[0]}"
+  puts " #{ARGV[0]}"
 end
 
 def output_plural_files(options)
@@ -58,7 +58,7 @@ def output_plural_files(options)
   print lines_num_total.to_s.rjust(8) if options[:l]
   print words_num_total.to_s.rjust(8) if options[:w]
   print characters_num_total.to_s.rjust(8) if options[:c]
-  print ' total'
+  puts ' total'
 end
 
 def output_pipeline(data)
@@ -67,7 +67,7 @@ def output_pipeline(data)
   characters_num = data.bytesize
   print lines_num.to_s.rjust(8)
   print words_num.to_s.rjust(8)
-  print characters_num.to_s.rjust(8)
+  puts characters_num.to_s.rjust(8)
 end
 
 main
