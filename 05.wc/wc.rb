@@ -22,8 +22,8 @@ def parse_option
   opt.on('-l') { |_v| options[:l] = true }
   opt.on('-w') { |_v| options[:w] = true }
   opt.on('-c') { |_v| options[:c] = true }
-  options = { l: true, w: true, c: true } if options.empty?
   opt.parse!(ARGV)
+  options = { l: true, w: true, c: true } if options.empty?
   options
 end
 
