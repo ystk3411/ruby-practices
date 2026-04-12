@@ -8,7 +8,7 @@ def main
   options = parse_option
   if ARGV.empty?
     data = $stdin.read
-    output_pipeline(data)
+    output_pipeline(data, options)
   elsif ARGV.length == 1
     output(options)
   else
@@ -61,13 +61,14 @@ def output_plural_files(options)
   puts ' total'
 end
 
-def output_pipeline(data)
+def output_pipeline(data, options)
   lines_num = data.split("\n").length
   words_num = data.split.length
   characters_num = data.bytesize
-  print lines_num.to_s.rjust(8)
-  print words_num.to_s.rjust(8)
-  puts characters_num.to_s.rjust(8)
+  print lines_num.to_s.rjust(8) if options[:l]
+  print words_num.to_s.rjust(8) if options[:w]
+  print characters_num.to_s.rjust(8) if options[:c]
+  puts
 end
 
 main
