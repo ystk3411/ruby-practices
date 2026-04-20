@@ -5,14 +5,14 @@ require 'optparse'
 require 'etc'
 
 def main
-  options = parse_option
+  options = parse_options
   outputs(options)
-  return unless count_data.length > 1
+  return unless count_input_data.length > 1
 
   output_count_total(options)
 end
 
-def parse_option
+def parse_options
   options = {}
   opt = OptionParser.new
   opt.on('-l') { |_v| options[:l] = true }
@@ -23,19 +23,19 @@ def parse_option
   options
 end
 
-def count_data
-  count_data = []
+def count_input_data
+  count_input_data = []
 
   if ARGV.empty?
     data = $stdin.read
-    count_data << {
+    count_input_data << {
       lines_num: data.split("\n").length.to_s,
       words_num: data.split.length.to_s,
       characters_num: data.bytesize.to_s
     }
   else
     ARGV.each_with_index do |file, index|
-      count_data << {
+      count_input_data << {
         lines_num: File.read(ARGV[index]).count("\n").to_s,
         words_num: File.read(ARGV[index]).split(/\s+/).length.to_s,
         characters_num: File.read(ARGV[index]).length.to_s,
@@ -43,10 +43,10 @@ def count_data
       }
     end
   end
-  count_data
+  count_input_data
 end
 
-def count_data_total
+def count_input_data_total
   lines_num_total = 0
   words_num_total = 0
   characters_num_total = 0
@@ -67,7 +67,7 @@ def count_data_total
 end
 
 def outputs(options)
-  count_data.each do |data|
+  count_input_data.each do |data|
     print data[:lines_num].rjust(8) if options[:l]
     print data[:words_num].rjust(8) if options[:w]
     print data[:characters_num].rjust(8) if options[:c]
@@ -77,7 +77,7 @@ def outputs(options)
 end
 
 def output_count_total(options)
-  total_data = count_data_total
+  total_data = count_input_data_total
   print total_data[:lines_num_total].rjust(8) if options[:l]
   print total_data[:words_num_total].rjust(8) if options[:w]
   print total_data[:characters_num_total].rjust(8) if options[:c]
