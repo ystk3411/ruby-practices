@@ -6,14 +6,10 @@ require 'etc'
 
 def main
   options = parse_option
-  if ARGV.empty?
-    data = $stdin.read
-    output_pipeline(data, options)
-  elsif ARGV.length == 1
-    output(options)
-  else
-    output_plural_files(options)
-  end
+  outputs(options)
+  return unless count_data.length > 1
+
+  output_count_total(options)
 end
 
 def parse_option
@@ -27,48 +23,65 @@ def parse_option
   options
 end
 
-def output(options)
-  lines_num = File.read(ARGV[0]).count("\n").to_s
-  words_num = File.read(ARGV[0]).split(/\s+/).length.to_s
-  characters_num = File.read(ARGV[0]).length.to_s
-  print lines_num.rjust(8) if options[:l]
-  print words_num.rjust(8) if options[:w]
-  print characters_num.rjust(8) if options[:c]
-  puts " #{ARGV[0]}"
+def count_data
+  count_data = []
+
+  if ARGV.empty?
+    data = $stdin.read
+    count_data << {
+      lines_num: data.split("\n").length.to_s,
+      words_num: data.split.length.to_s,
+      characters_num: data.bytesize.to_s
+    }
+  else
+    ARGV.each_with_index do |file, index|
+      count_data << {
+        lines_num: File.read(ARGV[index]).count("\n").to_s,
+        words_num: File.read(ARGV[index]).split(/\s+/).length.to_s,
+        characters_num: File.read(ARGV[index]).length.to_s,
+        file_name: file
+      }
+    end
+  end
+  count_data
 end
 
-def output_plural_files(options)
+def count_data_total
   lines_num_total = 0
   words_num_total = 0
   characters_num_total = 0
 
-  ARGV.each_with_index do |file, index|
+  ARGV.each_with_index do |_file, index|
     lines_num = File.read(ARGV[index]).count("\n")
     words_num = File.read(ARGV[index]).split(/\s+/).length
     characters_num = File.read(ARGV[index]).length
     lines_num_total += lines_num
     characters_num_total += characters_num
     words_num_total += words_num
-    print lines_num.to_s.rjust(8) if options[:l]
-    print words_num.to_s.rjust(8) if options[:w]
-    print characters_num.to_s.rjust(8) if options[:c]
-    print " #{file}"
-    puts
   end
-  print lines_num_total.to_s.rjust(8) if options[:l]
-  print words_num_total.to_s.rjust(8) if options[:w]
-  print characters_num_total.to_s.rjust(8) if options[:c]
-  puts ' total'
+  {
+    lines_num_total: lines_num_total.to_s,
+    characters_num_total: characters_num_total.to_s,
+    words_num_total: words_num_total.to_s
+  }
 end
 
-def output_pipeline(data, options)
-  lines_num = data.split("\n").length
-  words_num = data.split.length
-  characters_num = data.bytesize
-  print lines_num.to_s.rjust(8) if options[:l]
-  print words_num.to_s.rjust(8) if options[:w]
-  print characters_num.to_s.rjust(8) if options[:c]
-  puts
+def outputs(options)
+  count_data.each do |data|
+    print data[:lines_num].rjust(8) if options[:l]
+    print data[:words_num].rjust(8) if options[:w]
+    print data[:characters_num].rjust(8) if options[:c]
+    print " #{data[:file_name]}"
+    puts
+  end
+end
+
+def output_count_total(options)
+  total_data = count_data_total
+  print total_data[:lines_num_total].rjust(8) if options[:l]
+  print total_data[:words_num_total].rjust(8) if options[:w]
+  print total_data[:characters_num_total].rjust(8) if options[:c]
+  puts ' total'
 end
 
 main
