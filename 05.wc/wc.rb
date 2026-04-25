@@ -6,10 +6,7 @@ require 'etc'
 
 def main
   options = parse_options
-  outputs(options)
-  return unless count_input_data.length > 1
-
-  output_count_total(options)
+  output(options)
 end
 
 def parse_options
@@ -23,64 +20,67 @@ def parse_options
   options
 end
 
-def count_input_data
-  count_input_data = []
-
-  if ARGV.empty?
-    data = $stdin.read
-    count_input_data << {
-      lines_num: data.split("\n").length.to_s,
-      words_num: data.split.length.to_s,
-      characters_num: data.bytesize.to_s
-    }
-  else
-    ARGV.each_with_index do |file, index|
-      count_input_data << {
-        lines_num: File.read(ARGV[index]).count("\n").to_s,
-        words_num: File.read(ARGV[index]).split(/\s+/).length.to_s,
-        characters_num: File.read(ARGV[index]).length.to_s,
-        file_name: file
-      }
-    end
-  end
-  count_input_data
-end
-
-def count_input_data_total
-  lines_num_total = 0
-  words_num_total = 0
-  characters_num_total = 0
-
-  ARGV.each_with_index do |_file, index|
-    lines_num = File.read(ARGV[index]).count("\n")
-    words_num = File.read(ARGV[index]).split(/\s+/).length
-    characters_num = File.read(ARGV[index]).length
-    lines_num_total += lines_num
-    characters_num_total += characters_num
-    words_num_total += words_num
-  end
+def count_input_data(input_data)
   {
-    lines_num_total: lines_num_total.to_s,
-    characters_num_total: characters_num_total.to_s,
-    words_num_total: words_num_total.to_s
+    lines: input_data.count("\n").to_s,
+    words: input_data.split(/\s+/).length.to_s,
+    characters: input_data.length.to_s
   }
 end
 
-def outputs(options)
-  count_input_data.each do |data|
-    print data[:lines_num].rjust(8) if options[:l]
-    print data[:words_num].rjust(8) if options[:w]
-    print data[:characters_num].rjust(8) if options[:c]
-    print " #{data[:file_name]}"
-    puts
+def calc_counted_datas
+  counted_datas = []
+  if ARGV.empty?
+    input_data = $stdin.read
+    counted_datas << count_input_data(input_data)
+  else
+    ARGV.each_with_index do |file_name, index|
+      input_data = File.read(ARGV[index])
+      counted_datas << count_input_data(input_data)
+      counted_datas[index][:file_name] = file_name
+    end
   end
+  counted_datas
 end
 
-def output_count_total(options)
-  total_data = count_input_data_total
-  print total_data[:lines_num_total].rjust(8) if options[:l]
-  print total_data[:words_num_total].rjust(8) if options[:w]
-  print total_data[:characters_num_total].rjust(8) if options[:c]
+def count_input_data_total(options)
+  lines_total = 0
+  words_total = 0
+  characters_total = 0
+
+  ARGV.each_with_index do |_file_name, index|
+    file = File.read(ARGV[index])
+    lines = file.count("\n")
+    words = file.split(/\s+/).length
+    characters = file.length
+    lines_total += lines
+    characters_total += characters
+    words_total += words
+  end
+  counted_input_data_total = {}
+  counted_input_data_total[:lines_total] = lines_total.to_s if options[:l]
+  counted_input_data_total[:characters_total] = characters_total.to_s if options[:w]
+  counted_input_data_total[:words_total] = words_total.to_s if options[:c]
+  counted_input_data_total
+end
+
+def output(options)
+  counted_datas = calc_counted_datas
+
+  counted_datas.each do |counted_data|
+    print counted_data[:lines].rjust(8) if options[:l]
+    print counted_data[:words].rjust(8) if options[:w]
+    print counted_data[:characters].rjust(8) if options[:c]
+    print " #{counted_data[:file_name]}"
+    puts
+  end
+
+  return unless ARGV.length > 1
+
+  total_data = count_input_data_total(options)
+  print total_data[:lines_total].rjust(8)
+  print total_data[:words_total].rjust(8)
+  print total_data[:characters_total].rjust(8)
   puts ' total'
 end
 
