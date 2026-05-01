@@ -46,10 +46,11 @@ def calc_counted_file_info_list
     input_file_info = $stdin.read
     counted_file_info_list << count_input_file_info(input_file_info)
   else
-    ARGV.each_with_index do |file_name, index|
+    ARGV.each do |file_name|
       input_file_info = File.read(file_name)
-      counted_file_info_list << count_input_file_info(input_file_info)
-      counted_file_info_list[index][:file_name] = file_name
+      counted_input_file_info = count_input_file_info(input_file_info)
+      counted_input_file_info[:file_name] = file_name
+      counted_file_info_list << counted_input_file_info
     end
   end
   counted_file_info_list
