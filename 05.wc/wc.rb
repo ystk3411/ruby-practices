@@ -21,9 +21,9 @@ def parse_options
 end
 
 def output(options)
-  counted_datas = calc_counted_datas
+  counted_list = calc_counted_list
 
-  counted_datas.each do |counted_data|
+  counted_list.each do |counted_data|
     print counted_data[:lines].rjust(8) if options[:l]
     print counted_data[:words].rjust(8) if options[:w]
     print counted_data[:characters].rjust(8) if options[:c]
@@ -40,19 +40,19 @@ def output(options)
   puts ' total'
 end
 
-def calc_counted_datas
-  counted_datas = []
+def calc_counted_list
+  counted_list = []
   if ARGV.empty?
     input_data = $stdin.read
-    counted_datas << count_input_data(input_data)
+    counted_list << count_input_data(input_data)
   else
     ARGV.each_with_index do |file_name, index|
       input_data = File.read(ARGV[index])
-      counted_datas << count_input_data(input_data)
-      counted_datas[index][:file_name] = file_name
+      counted_list << count_input_data(input_data)
+      counted_list[index][:file_name] = file_name
     end
   end
-  counted_datas
+  counted_list
 end
 
 def count_input_data_total(options)
