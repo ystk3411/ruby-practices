@@ -47,7 +47,7 @@ def calc_counted_list
     counted_list << count_input_data(input_data)
   else
     ARGV.each_with_index do |file_name, index|
-      input_data = File.read(ARGV[index])
+      input_data = File.read(file_name)
       counted_list << count_input_data(input_data)
       counted_list[index][:file_name] = file_name
     end
@@ -60,8 +60,8 @@ def count_input_data_total(options)
   words_total = 0
   characters_total = 0
 
-  ARGV.each_with_index do |_file_name, index|
-    file = File.read(ARGV[index])
+  ARGV.each_with_index do |file_name, index|
+    file = File.read(file_name)
     lines = file.count("\n")
     words = file.split(/\s+/).length
     characters = file.length
