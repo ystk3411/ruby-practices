@@ -24,9 +24,9 @@ def output(options)
   counted_file_info_list = calc_counted_file_info_list
 
   counted_file_info_list.each do |file_info|
-    print file_info[:lines].rjust(8) if options[:l]
-    print file_info[:words].rjust(8) if options[:w]
-    print file_info[:characters].rjust(8) if options[:c]
+    print right_justify(file_info[:lines]) if options[:l]
+    print right_justify(file_info[:words]) if options[:w]
+    print right_justify(file_info[:characters]) if options[:c]
     print " #{file_info[:file_name]}"
     puts
   end
@@ -34,10 +34,14 @@ def output(options)
   return unless ARGV.length > 1
 
   total_data = count_input_file_info_total(options)
-  print total_data[:lines_total].rjust(8)
-  print total_data[:words_total].rjust(8)
-  print total_data[:characters_total].rjust(8)
+  print right_justify(total_data[:lines_total])
+  print right_justify(total_data[:words_total]) 
+  print right_justify(total_data[:characters_total])
   puts ' total'
+end
+
+def right_justify(text)
+  text.rjust(8)
 end
 
 def calc_counted_file_info_list
