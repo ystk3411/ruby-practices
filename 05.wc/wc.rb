@@ -20,12 +20,24 @@ def parse_options
   options
 end
 
-def count_input_data(input_data)
-  {
-    lines: input_data.count("\n").to_s,
-    words: input_data.split(/\s+/).length.to_s,
-    characters: input_data.length.to_s
-  }
+def output(options)
+  counted_datas = calc_counted_datas
+
+  counted_datas.each do |counted_data|
+    print counted_data[:lines].rjust(8) if options[:l]
+    print counted_data[:words].rjust(8) if options[:w]
+    print counted_data[:characters].rjust(8) if options[:c]
+    print " #{counted_data[:file_name]}"
+    puts
+  end
+
+  return unless ARGV.length > 1
+
+  total_data = count_input_data_total(options)
+  print total_data[:lines_total].rjust(8)
+  print total_data[:words_total].rjust(8)
+  print total_data[:characters_total].rjust(8)
+  puts ' total'
 end
 
 def calc_counted_datas
@@ -64,24 +76,12 @@ def count_input_data_total(options)
   counted_input_data_total
 end
 
-def output(options)
-  counted_datas = calc_counted_datas
-
-  counted_datas.each do |counted_data|
-    print counted_data[:lines].rjust(8) if options[:l]
-    print counted_data[:words].rjust(8) if options[:w]
-    print counted_data[:characters].rjust(8) if options[:c]
-    print " #{counted_data[:file_name]}"
-    puts
-  end
-
-  return unless ARGV.length > 1
-
-  total_data = count_input_data_total(options)
-  print total_data[:lines_total].rjust(8)
-  print total_data[:words_total].rjust(8)
-  print total_data[:characters_total].rjust(8)
-  puts ' total'
+def count_input_data(input_data)
+  {
+    lines: input_data.count("\n").to_s,
+    words: input_data.split(/\s+/).length.to_s,
+    characters: input_data.length.to_s
+  }
 end
 
 main
