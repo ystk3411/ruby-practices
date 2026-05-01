@@ -31,7 +31,7 @@ def output(options)
     puts
   end
 
-  return unless ARGV.length > 1
+  return if ARGV.length < 1
 
   total_data = count_input_file_info_total(options)
   print right_justify(total_data[:lines_total])
