@@ -33,15 +33,24 @@ def output(options)
 
   return if ARGV.length < 1
 
-  total_data = count_input_file_info_total(options)
-  print right_justify(total_data[:lines_total])
-  print right_justify(total_data[:words_total]) 
-  print right_justify(total_data[:characters_total])
+  lines_total = 0
+  words_total = 0
+  characters_total = 0
+
+  counted_file_info_list.each do |file_info|
+    lines_total += file_info[:lines].to_i
+    words_total += file_info[:words].to_i
+    characters_total += file_info[:characters].to_i
+  end
+
+  print right_justify(lines_total)
+  print right_justify(words_total) 
+  print right_justify(characters_total)
   puts ' total'
 end
 
 def right_justify(text)
-  text.rjust(8)
+  text.is_a?(String) ? text.rjust(8) : text.to_s.rjust(8)
 end
 
 def calc_counted_file_info_list
@@ -58,27 +67,6 @@ def calc_counted_file_info_list
     end
   end
   counted_file_info_list
-end
-
-def count_input_file_info_total(options)
-  lines_total = 0
-  words_total = 0
-  characters_total = 0
-
-  ARGV.each_with_index do |file_name, index|
-    file = File.read(file_name)
-    lines = file.count("\n")
-    words = file.split(/\s+/).length
-    characters = file.length
-    lines_total += lines
-    characters_total += characters
-    words_total += words
-  end
-  counted_input_file_info_total = {}
-  counted_input_file_info_total[:lines_total] = lines_total.to_s if options[:l]
-  counted_input_file_info_total[:characters_total] = characters_total.to_s if options[:w]
-  counted_input_file_info_total[:words_total] = words_total.to_s if options[:c]
-  counted_input_file_info_total
 end
 
 def count_input_file_info(input_file_info)
