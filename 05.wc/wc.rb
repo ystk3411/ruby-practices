@@ -12,9 +12,9 @@ end
 def parse_options
   options = {}
   opt = OptionParser.new
-  opt.on('-l') { |_v| options[:l] = true }
-  opt.on('-w') { |_v| options[:w] = true }
-  opt.on('-c') { |_v| options[:c] = true }
+  opt.on('-l') { options[:l] = true }
+  opt.on('-w') { options[:w] = true }
+  opt.on('-c') { options[:c] = true }
   opt.parse!(ARGV)
   options = { l: true, w: true, c: true } if options.empty?
   options
