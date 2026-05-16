@@ -5,33 +5,33 @@ require 'optparse'
 require 'etc'
 
 def main
-  counted_file_info_list = calc_counted_file_info_list
+  file_info_list = build_file_info_list
 
-  counted_file_info_list.each do |file_info|
+  file_info_list.each do |file_info|
     outputs(file_info)
   end
 
   return if ARGV.length <= 1
 
-  total_num_list = calc_total_file_info(counted_file_info_list)
-  outputs(total_num_list)
+  total_info = calc_total(file_info_list)
+  output(total_num_list)
 end
 
-def calc_counted_file_info_list
+def build_file_info_list
   options = parse_options
-  counted_file_info_list = []
+  file_info_list = []
   if ARGV.empty?
-    input_file_info = $stdin.read
-    counted_file_info_list << count_input_file_info(input_file_info, options)
+    text = $stdin.read
+    file_info_list << count_input_file_info(text, options)
   else
     ARGV.each do |file_name|
-      input_file_info = File.read(file_name)
-      counted_input_file_info = count_input_file_info(input_file_info, options)
+      text = File.read(file_name)
+      counted_input_file_info = count_input_file_info(text, options)
       counted_input_file_info[:file_name] = file_name
-      counted_file_info_list << counted_input_file_info
+      file_info_list << counted_input_file_info
     end
   end
-  counted_file_info_list
+  file_info_list
 end
 
 def parse_options
@@ -56,7 +56,7 @@ def count_input_file_info(input_file_info, options)
   }.compact
 end
 
-def outputs(file_info)
+def output(file_info)
   file_info.each do |key, file_info_num|
     if %i[file_name text].include?(key)
       print " #{file_info_num}"
@@ -71,25 +71,25 @@ def right_justify(text)
   text.is_a?(String) ? text.rjust(8) : text.to_s.rjust(8)
 end
 
-def calc_total_file_info(file_info_list)
-  lines_total = 0
-  words_total = 0
-  characters_total = 0
+def calc_total(file_info_list)
+  lines = 0
+  words = 0
+  characters = 0
 
   file_info_list.each do |file_info|
-    lines_total += file_info[:lines].to_i
-    words_total += file_info[:words].to_i
-    characters_total += file_info[:characters].to_i
+    lines += file_info[:lines].to_i
+    words += file_info[:words].to_i
+    characters += file_info[:characters].to_i
   end
 
   total_num_list = {
-    lines: lines_total,
-    words: words_total,
-    characters: characters_total
+    lines: lines,
+    words: words,
+    characters: characters
   }
 
   total_num_list.delete_if { |_key, value| value.zero? }
-  total_num_list[:text] = 'total'
+  total_num_list[:file_name] = 'total'
   total_num_list
 end
 
