@@ -44,17 +44,12 @@ def parse_options
 end
 
 def count_input_file_info(text, options, file_name = nil)
-  lines = text.count("\n").to_s if options[:l]
-  words = text.split(/\s+/).length.to_s if options[:w]
-  characters = text.length.to_s if options[:c]
-  file_info = {
-    lines: lines,
-    words: words,
-    characters: characters
-  }.compact
-
+  file_info = {}
+  file_info[:lines] = text.count("\n") if options[:l]
+  file_info[:words] = text.split(/\s+/).length if options[:w]
+  file_info[:characters] = text.length if options[:c]
   file_info[:file_name] = file_name if !file_name.nil?
-  file_info
+  file_info.compact
 end
 
 def output(file_info)
