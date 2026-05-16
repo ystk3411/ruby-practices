@@ -8,13 +8,13 @@ def main
   file_info_list = build_file_info_list
 
   file_info_list.each do |file_info|
-    outputs(file_info)
+    output(file_info)
   end
 
   return if ARGV.length <= 1
 
   total_info = calc_total(file_info_list)
-  output(total_num_list)
+  output(total_info)
 end
 
 def build_file_info_list
@@ -26,9 +26,7 @@ def build_file_info_list
   else
     ARGV.each do |file_name|
       text = File.read(file_name)
-      counted_input_file_info = count_input_file_info(text, options)
-      counted_input_file_info[:file_name] = file_name
-      file_info_list << counted_input_file_info
+      file_info_list << count_input_file_info(text, options, file_name)
     end
   end
   file_info_list
@@ -45,15 +43,18 @@ def parse_options
   options
 end
 
-def count_input_file_info(input_file_info, options)
-  lines = input_file_info.count("\n").to_s if options[:l]
-  words = input_file_info.split(/\s+/).length.to_s if options[:w]
-  characters = input_file_info.length.to_s if options[:c]
-  {
+def count_input_file_info(text, options, file_name = nil)
+  lines = text.count("\n").to_s if options[:l]
+  words = text.split(/\s+/).length.to_s if options[:w]
+  characters = text.length.to_s if options[:c]
+  file_info = {
     lines: lines,
     words: words,
     characters: characters
   }.compact
+
+  file_info[:file_name] = file_name if !file_name.nil?
+  file_info
 end
 
 def output(file_info)
