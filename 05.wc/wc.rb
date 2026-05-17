@@ -53,7 +53,10 @@ def count_input_file_info(text, options, file_name = nil)
 end
 
 def output(file_info)
-  file_info.each do |key, file_info_num|
+  custom_order = [:lines, :words, :characters, :file_name]
+  file_info_sorted = file_info.slice(*custom_order)
+
+  file_info_sorted.each do |key, file_info_num|
     if %i[file_name text].include?(key)
       print " #{file_info_num}"
     else
