@@ -60,14 +60,10 @@ def output(file_info)
     if %i[file_name text].include?(key)
       print " #{file_info_num}"
     else
-      print right_justify(file_info_num)
+      print file_info_num.to_s.rjust(8)
     end
   end
   puts
-end
-
-def right_justify(text)
-  text.is_a?(String) ? text.rjust(8) : text.to_s.rjust(8)
 end
 
 def calc_total(file_info_list)
