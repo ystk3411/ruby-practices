@@ -53,7 +53,7 @@ def count_input_file_info(text, options, file_name = nil)
 end
 
 def output(file_info)
-  custom_order = [:lines, :words, :characters, :file_name]
+  custom_order = %i[lines words characters file_name]
   file_info_sorted = file_info.slice(*custom_order)
 
   file_info_sorted.each do |key, file_info_num|
@@ -71,20 +71,19 @@ def calc_total(file_info_list)
     lines: 0,
     words: 0,
     characters: 0,
-    file_name: ""
+    file_name: ''
   }
 
   file_info_list.each do |file_info|
     file_info.each do |key, value|
-      total_num_list.delete_if{|key| }
-      if key == :file_name
-        next
-      end
+      total_num_list.delete_if { |key| }
+      next if key == :file_name
+
       total_num_list[key] += value
     end
   end
 
-  total_num_list.delete_if { |key, value| !(file_info_list[0].key?(key)) }
+  total_num_list.delete_if { |key| !file_info_list[0].key?(key) }
   total_num_list[:file_name] = 'total'
   total_num_list
 end
