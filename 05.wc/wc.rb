@@ -47,7 +47,7 @@ def count_input_file_info(text, options, file_name = nil)
   file_info = {}
   file_info[:lines] = text.count("\n") if options[:l]
   file_info[:words] = text.split(/\s+/).length if options[:w]
-  file_info[:characters] = text.length if options[:c]
+  file_info[:characters] = text.bytesize if options[:c]
   file_info[:file_name] = file_name if !file_name.nil?
   file_info.compact
 end
