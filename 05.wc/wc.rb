@@ -67,23 +67,24 @@ def output(file_info)
 end
 
 def calc_total(file_info_list)
-  lines = 0
-  words = 0
-  characters = 0
-
-  file_info_list.each do |file_info|
-    lines += file_info[:lines].to_i
-    words += file_info[:words].to_i
-    characters += file_info[:characters].to_i
-  end
-
   total_num_list = {
-    lines: lines,
-    words: words,
-    characters: characters
+    lines: 0,
+    words: 0,
+    characters: 0,
+    file_name: ""
   }
 
-  total_num_list.delete_if { |_key, value| value.zero? }
+  file_info_list.each do |file_info|
+    file_info.each do |key, value|
+      total_num_list.delete_if{|key| }
+      if key == :file_name
+        next
+      end
+      total_num_list[key] += value
+    end
+  end
+
+  total_num_list.delete_if { |key, value| !(file_info_list[0].key?(key)) }
   total_num_list[:file_name] = 'total'
   total_num_list
 end
