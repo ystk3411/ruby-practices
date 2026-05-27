@@ -19,17 +19,15 @@ def main
 end
 
 def build_file_info_list
-  file_info_list = []
   if ARGV.empty?
     text = $stdin.read
-    file_info_list << count_input_file_info(text)
+    [count_input_file_info(text)]
   else
-    ARGV.each do |file_name|
+    ARGV.map do |file_name|
       text = File.read(file_name)
-      file_info_list << count_input_file_info(text, file_name)
+      count_input_file_info(text, file_name)
     end
   end
-  file_info_list
 end
 
 def parse_options
@@ -44,26 +42,19 @@ def parse_options
 end
 
 def count_input_file_info(text, file_name = nil)
-  file_info = {}
-  file_info[:lines] = text.count("\n")
-  file_info[:words] = text.split(/\s+/).length
-  file_info[:bytesize] = text.bytesize
-  file_info[:file_name] = file_name if !file_name.nil?
-  file_info
+  {
+    lines: text.count("\n"),
+    words: text.split(/\s+/).length,
+    bytesize: text.bytesize,
+    file_name: file_name
+  }
 end
 
 def output(file_info, options)
-  custom_order = %i[lines words bytesize file_name]
-  custom_order.each do |key|
-    file_info_value = file_info[key]
-    next if file_info_value.nil?
-
-    if %i[file_name].include?(key)
-      print " #{file_info_value}"
-    elsif options[key.to_sym]
-      print file_info_value.to_s.rjust(8)
-    end
+  %i[lines words bytesize].each do |key|
+    print file_info[key].to_s.rjust(8) if options[key]
   end
+  print " #{file_info[:file_name]}"
   puts
 end
 
@@ -76,14 +67,11 @@ def calc_total(file_info_list)
   }
 
   file_info_list.each do |file_info|
-    file_info.each do |key, value|
-      next if key == :file_name
-
+    file_info.except(:file_name).each do |key, value|
       total_num_list[key] += value
     end
   end
 
-  total_num_list.delete_if { |key| !file_info_list[0].key?(key) }
   total_num_list
 end
 
