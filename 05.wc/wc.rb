@@ -59,7 +59,7 @@ def output(file_info, options)
 end
 
 def calc_total(file_info_list)
-  total_num_list = {
+  total_info = {
     lines: 0,
     words: 0,
     bytesize: 0,
@@ -68,11 +68,11 @@ def calc_total(file_info_list)
 
   file_info_list.each do |file_info|
     file_info.except(:file_name).each do |key, value|
-      total_num_list[key] += value
+      total_info[key] += value
     end
   end
 
-  total_num_list
+  total_info
 end
 
 main
