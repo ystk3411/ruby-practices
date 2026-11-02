@@ -18,7 +18,7 @@ class Game
     if frame[0] == 10 # strike
       if @frames[index + 1][0] == 10
         result = 10
-        result + index == 8 ? @frames[index + 1][1] : @frames[index + 2][0]
+        result += index == 8 ? @frames[index + 1][1] : @frames[index + 2][0]
       else
         @frames[index + 1][0..1].sum
       end
