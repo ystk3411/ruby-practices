@@ -1,27 +1,25 @@
 # frozen_string_literal: true
 
+require_relative 'shot'
+
 class Frame
-  attr_reader :frames
+  attr_reader :first_shot, :second_shot, :third_shot
 
-  FRAME_LAST_THROW = 3
-  FRAME_ELEVENTH = 10
-  FRAME_TWELFTH = 11
-
-  def initialize(shot)
-    @frames = shot.each_slice(2).to_a
+  def initialize(first_mark, second_mark = nil, third_mark = nil)
+    @first_shot = Shot.new(first_mark)
+    @second_shot = Shot.new(second_mark)
+    @third_shot = Shot.new(third_mark)
   end
 
-  def arrange_frames
-    return unless @frames.count >= FRAME_TWELFTH
+  def score
+    [first_shot.score, second_shot.score, third_shot.score].sum
+  end
 
-    @frames[9].push(@frames.values_at(FRAME_ELEVENTH, FRAME_TWELFTH)).flatten!
-    @frames[9].compact!
+  def strike?
+    first_shot.score == 10
+  end
 
-    if @frames[9][0] == 10
-
-      @frames[9].delete(0) if @frames[9].count > FRAME_LAST_THROW
-      @frames[9] << 0 until @frames[9].count == FRAME_LAST_THROW
-    end
-    @frames.slice!(FRAME_ELEVENTH, FRAME_TWELFTH)
+  def spare?
+    !strike? && (first_shot.score + second_shot.score == 10)
   end
 end
