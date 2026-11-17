@@ -16,7 +16,7 @@ class Frame
   end
 
   def strike?
-    first_shot.score == 10
+    first_shot.strike?
   end
 
   def spare?
