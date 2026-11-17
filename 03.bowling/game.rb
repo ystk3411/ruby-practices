@@ -4,7 +4,7 @@ require_relative 'frame'
 
 class Game
   def initialize(marks)
-    @frames = parse_frames(marks)
+    @frames = create_frames(marks)
   end
 
   def score
@@ -13,7 +13,7 @@ class Game
     end
   end
 
-  def parse_frames(marks)
+  def create_frames(marks)
     frames = []
     current_marks = marks.dup
 
