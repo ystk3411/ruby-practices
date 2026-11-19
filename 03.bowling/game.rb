@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'frame'
+require_relative 'shot'
 
 class Game
   def initialize(marks)
@@ -51,7 +52,7 @@ class Game
     if next_frame.strike? && after_next_frame
       next_frame.first_shot.score + after_next_frame.first_shot.score
     else
-      next_frame.first_shot.score + next_frame.second_shot.score
+      next_frame.first_shot.score + next_frame.second_shot&.score.to_i
     end
   end
 end
