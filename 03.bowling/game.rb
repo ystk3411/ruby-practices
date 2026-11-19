@@ -4,7 +4,8 @@ require_relative 'frame'
 
 class Game
   def initialize(marks)
-    @frames = create_frames(marks)
+    shots = marks.map { |mark| Shot.new(mark) }
+    @frames = create_frames(shots)
   end
 
   def score
@@ -13,17 +14,21 @@ class Game
     end
   end
 
-  def create_frames(marks)
+  def create_frames(shots)
     frames = []
-    current_marks = marks.dup
+    current_shots = shots.dup
 
     9.times do
-      first = current_marks.shift
-      second = first == 'X' ? nil : current_marks.shift
-      frames << Frame.new(first, second)
+      first_shot = current_shots.shift
+      if first_shot.strike?
+        frames << Frame.new(first_shot)
+      else
+        second_shot = current_shots.shift
+        frames << Frame.new(first_shot, second_shot)
+      end
     end
 
-    frames << Frame.new(*current_marks)
+    frames << Frame.new(*current_shots)
     frames
   end
 
