@@ -18,21 +18,19 @@ class Game
   private
 
   def create_frames(shots)
-    frames = []
     current_shots = shots.dup
 
-    9.times do
+    frames = 9.times.map do
       first_shot = current_shots.shift
       if first_shot.strike?
-        frames << Frame.new(first_shot)
+        Frame.new(first_shot)
       else
         second_shot = current_shots.shift
-        frames << Frame.new(first_shot, second_shot)
+        Frame.new(first_shot, second_shot)
       end
     end
 
     frames << Frame.new(*current_shots)
-    frames
   end
 
   def bonus_score(frame, index)
