@@ -15,6 +15,8 @@ class Game
     end
   end
 
+  private
+
   def create_frames(shots)
     frames = []
     current_shots = shots.dup
