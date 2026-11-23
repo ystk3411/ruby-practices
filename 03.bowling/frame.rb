@@ -54,7 +54,7 @@ class Frame
 
   def strike_bonus(next_frame, after_next_frame)
     if next_frame.strike? && after_next_frame
-      next_frame.first_shot.score + after_next_frame.first_shot.score
+      [next_frame, after_next_frame].sum { |f| f.first_shot.score }
     else
       [next_frame.first_shot, next_frame.second_shot].compact.sum(&:score)
     end
