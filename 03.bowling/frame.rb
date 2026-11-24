@@ -10,8 +10,8 @@ class Frame
     @shots = shots
   end
 
-  def score(next_frame = nil, after_next_frame = nil)
-    base_score + bonus_score(next_frame, after_next_frame)
+  def score(following_frames)
+    base_score + bonus_score(following_frames)
   end
 
   def strike?
@@ -40,8 +40,10 @@ class Frame
     @shots.sum(&:score)
   end
 
-  def bonus_score(next_frame, after_next_frame)
+  def bonus_score(next_frames)
     return 0 if last_frame?
+
+    next_frame, after_next_frame = next_frames
 
     if strike?
       strike_bonus(next_frame, after_next_frame)

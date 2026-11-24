@@ -11,7 +11,7 @@ class Game
 
   def score
     @frames.sum do |frame|
-      frame.score(@frames[frame.index + 1], @frames[frame.index + 2])
+      frame.score(@frames[frame.index + 1, 2])
     end
   end
 
