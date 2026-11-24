@@ -20,16 +20,14 @@ class Game
   def create_frames(shots)
     current_shots = shots.dup
 
-    frames = 9.times.map do |index|
-      first_shot = current_shots.shift
-      if first_shot.strike?
-        Frame.new(index, first_shot)
-      else
-        second_shot = current_shots.shift
-        Frame.new(index, first_shot, second_shot)
-      end
+    10.times.map do |index|
+      length =
+        if index == 9
+          current_shots.size
+        else
+          current_shots[0].strike? ? 1 : 2
+        end
+      Frame.new(index, *current_shots.shift(length))
     end
-
-    frames << Frame.new(9, *current_shots)
   end
 end
