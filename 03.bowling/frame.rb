@@ -18,10 +18,6 @@ class Frame
     first_shot.strike?
   end
 
-  def spare?
-    !strike? && @shots[0..1].sum(&:score) == 10
-  end
-
   def first_shot
     @shots[0]
   end
@@ -52,6 +48,10 @@ class Frame
     else
       0
     end
+  end
+
+  def spare?
+    !strike? && @shots[0..1].sum(&:score) == 10
   end
 
   def strike_bonus(next_frame, after_next_frame)
