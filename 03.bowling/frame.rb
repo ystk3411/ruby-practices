@@ -14,6 +14,8 @@ class Frame
     base_score + bonus_score(following_frames)
   end
 
+  protected
+
   def strike?
     first_shot.strike?
   end
